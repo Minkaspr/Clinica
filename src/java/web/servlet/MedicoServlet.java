@@ -1,4 +1,3 @@
-
 package web.servlet;
 
 import java.io.IOException;
@@ -32,6 +31,18 @@ public class MedicoServlet extends HttpServlet {
                 result = validator.medicoInsUpd(false);
                 target = result == null ? "medico.jsp" : "medicoIns.jsp";
                 break;
+            case "GET":
+                result = validator.medicoGet();
+                target = "medicoUpd.jsp";
+                break;
+            case "UPD":
+                result = validator.medicoInsUpd(true);
+                target = result == null ? "medico.jsp" : "medicoUpd.jsp";
+                break;
+            case "UPD_PASS":
+                result = validator.actualizarClave();
+                target = result == null ? "medico.jsp" : "medicoUpdPass.jsp";
+                break;
             case "":
                 result = "Solicitud requerida";
                 break;
@@ -46,7 +57,6 @@ public class MedicoServlet extends HttpServlet {
         RequestDispatcher dispatcher = request.getRequestDispatcher(target);
         dispatcher.forward(request, response);
     }
-
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)

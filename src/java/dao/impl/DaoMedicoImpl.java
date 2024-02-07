@@ -163,19 +163,23 @@ public class DaoMedicoImpl implements DaoMedico {
     @Override
     public String actualizarMedico(Medico medico) {
         StringBuilder query = new StringBuilder();
-        query.append("UPDATE usuario SET ")
-                .append("correo = ?, rol = ? ")
-                .append("WHERE id = ?");
+        query.append("UPDATE usuario u ")
+                .append("JOIN medico m ON u.id = m.usuario_id ")
+                .append("SET u.correo = ?, u.rol = ?, u.estado = ? ")
+                .append("WHERE m.id = ?");
         try (Connection cn = conexion.conexionBD()) {
             // Iniciar transacción
             cn.setAutoCommit(false);
+            boolean transaccionExitosa = true;
             PreparedStatement ps = cn.prepareStatement(query.toString());
             ps.setString(1, medico.getUsuario().getCorreo());
             ps.setString(2, medico.getUsuario().getRol());
-            ps.setInt(3, medico.getUsuario().getId());
+            ps.setBoolean(3, medico.getUsuario().getEstado());
+            ps.setInt(4, medico.getId());
             int ctos = ps.executeUpdate();
             if (ctos == 0) {
                 mensaje = "No se pudo actualizar el usuario";
+                transaccionExitosa = false;
             } else {
                 query = new StringBuilder();
                 query.append("UPDATE medico SET ")
@@ -193,12 +197,12 @@ public class DaoMedicoImpl implements DaoMedico {
                 ctos = ps.executeUpdate();
                 if (ctos == 0) {
                     mensaje = "No se pudo actualizar el médico";
+                    transaccionExitosa = false;
                 }
             }
             // Si no hay mensajes de error, realiza los cambios
-            if (mensaje.isEmpty()) {
+            if (transaccionExitosa) {
                 cn.commit();
-                mensaje = "Actualización exitosa";
             } else {
                 // Si hubo algún error, deshacemos la transacción
                 cn.rollback();
@@ -227,6 +231,41 @@ public class DaoMedicoImpl implements DaoMedico {
             mensaje = e.getMessage();
         }
         return mensaje;
+    }
+
+    @Override
+    public String obtenerClave(String idMedico) {
+        String clave = null;
+        String query = "SELECT u.clave FROM usuario u JOIN medico m ON u.id = m.usuario_id WHERE m.id = ?";
+        try (Connection cn = conexion.conexionBD()) {
+            PreparedStatement ps = cn.prepareStatement(query);
+            ps.setString(1, idMedico);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                clave = rs.getString(1);
+            }
+        } catch (SQLException e) {
+            mensaje = e.getMessage();
+        }
+        return clave;
+    }
+
+    @Override
+    public String actualizarClave(String idMedico, String nuevaClave) {
+        String result = null;
+        String query = "UPDATE usuario u JOIN medico m ON u.id = m.usuario_id SET u.clave = ? WHERE m.id = ?";
+        try (Connection cn = conexion.conexionBD()) {
+            PreparedStatement ps = cn.prepareStatement(query);
+            ps.setString(1, nuevaClave);
+            ps.setString(2, idMedico);
+            int rowsUpdated = ps.executeUpdate();
+            if (rowsUpdated == 0) {
+                result = "No se pudo actualizar la contraseña";
+            }
+        } catch (SQLException e) {
+            result = "Error al actualizar la contraseña: " + e.getMessage();
+        }
+        return result;
     }
 
     @Override

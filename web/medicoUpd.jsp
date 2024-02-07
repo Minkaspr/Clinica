@@ -8,7 +8,9 @@
         <title>JSP Page</title>
     </head>
     <body>
-        <h1>Actualizra Medico</h1>
+
+
+
         <%
             Medico medico = (Medico) request.getAttribute("medico");
             String nombres = (medico != null) ? medico.getNombres() : "";
@@ -16,14 +18,18 @@
             String numeroColegiado = (medico != null) ? medico.getNumeroColegiado() : "";
             String especialidad = (medico != null) ? medico.getEspecialidad() : "";
             String correo = (medico != null) ? medico.getUsuario().getCorreo() : "";
-            String clave = (medico != null) ? medico.getUsuario().getClave() : "";
             String rol = (medico != null) ? medico.getUsuario().getRol() : "";
             Boolean estado = (medico != null) ? medico.getUsuario().getEstado() : true;
             String horaEntrada = (medico != null) ? medico.getHoraEntrada().toString() : "";
             String horaSalida = (medico != null) ? medico.getHoraSalida().toString() : "";
         %>
+        <% request.getSession().setAttribute("idMedico", medico.getId());%>
+        <a href="medicoUpdPass.jsp">Cambiar contraseña</a>
+
+        <h1>Actualizar Medico</h1>
         <form action="Medico" method="POST" class="form">
-            <input type="hidden" name="op" value="INS"/>
+            <input type="hidden" name="op" value="UPD"/>
+            <input type="hidden" name="idMedico" value="<%= medico.getId()%>"/>
             <div class="form__group">
                 <div class="form__item">
                     <label for="nombre" class="form__label">Nombres</label>
@@ -36,10 +42,6 @@
                 <div class="form__item">
                     <label for="correo" class="form__label">Correo</label>
                     <input type="email" id="correo" class="form__input" name="correo" value="<%= correo%>">
-                </div>
-                <div class="form__item">
-                    <label for="clave" class="form__label">Clave</label>
-                    <input type="password" id="clave" class="form__input" name="clave" value="<%= clave%>">
                 </div>
                 <div class="form__item">
                     <label for="numeroColegiado" class="form__label">Numero Colegiado</label>
@@ -83,7 +85,7 @@
                     </button>
                     <button class="btn__item btn__item--add" type="submit">
                         <i class="uil uil-check"></i>
-                        <span class="btnText">Agregar</span>
+                        <span class="btnText">Actualizar</span>
                     </button>
                 </div>
         </form>

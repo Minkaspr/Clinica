@@ -52,7 +52,8 @@ public class MedicoValidator {
         String correo = request.getParameter("correo");
         String clave = request.getParameter("clave");
         String rol = request.getParameter("rol");
-        Boolean estado = Boolean.valueOf(request.getParameter("estado"));
+        String estadoParam = request.getParameter("estado");
+        Boolean estado = "1".equals(estadoParam);
 
         String horaEntrada = request.getParameter("horaEntrada");
         String horaSalida = request.getParameter("horaSalida");
@@ -100,15 +101,6 @@ public class MedicoValidator {
 
         Usuario usuario = new Usuario();
         usuario.setCorreo(correo);
-        String claveCifrada;
-        String claveHash;
-        try {
-            claveCifrada = Seguridad.cifrar(clave);
-            claveHash = Seguridad.hash(claveCifrada);
-            usuario.setClave(claveHash);
-        } catch (Exception ex) {
-            result.append("<li>Error al cifrar la contraseña: ").append(ex.getMessage()).append("</li>");
-        }
 
         if (agreActu) {
             usuario.setRol(rol);
@@ -116,6 +108,16 @@ public class MedicoValidator {
         } else {
             usuario.setRol("Medico");
             usuario.setEstado(true);
+
+            String claveCifrada;
+            String claveHash;
+            try {
+                claveCifrada = Seguridad.cifrar(clave);
+                claveHash = Seguridad.hash(claveCifrada);
+                usuario.setClave(claveHash);
+            } catch (Exception ex) {
+                result.append("<li>Error al cifrar la contraseña: ").append(ex.getMessage()).append("</li>");
+            }
         }
 
         medico.setUsuario(usuario);
@@ -134,5 +136,54 @@ public class MedicoValidator {
         }
 
         return result.length() == 4 ? null : result.append("</ul>").toString();
+    }
+
+    public String medicoGet() {
+        String result = null;
+        String idMedicoAux = request.getParameter("id");
+        Integer idMedico = Integer.valueOf(idMedicoAux);
+        Medico medico = daoMedico.obtenerMedicoPorId(idMedico);
+        if (medico != null) {
+            request.setAttribute("medico", medico);
+        } else {
+            result = daoMedico.getMensaje();
+        }
+        return result;
+    }
+
+    public String actualizarClave() {
+        String result = null;
+        String idMedico = request.getParameter("idMedico");
+        String passActual = request.getParameter("passActual");
+        String passNueva = request.getParameter("passNueva");
+        String passNuevaRepetida = request.getParameter("passNuevaRepetida");
+
+        // Obtener el hash de la clave almacenada en la base de datos
+        String claveHash = daoMedico.obtenerClave(idMedico);
+
+        try {
+            // Cifrar y aplicar un hash a la clave actual ingresada por el usuario
+            String claveCifradaActual = Seguridad.cifrar(passActual);
+            String claveHashActual = Seguridad.hash(claveCifradaActual);
+
+            // Verificar si el hash de la clave actual ingresada por el usuario coincide con el hash almacenado en la base de datos
+            if (claveHashActual.equals(claveHash)) {
+                // Verificar si la nueva clave ingresada por el usuario coincide con la repetida
+                if (passNueva.equals(passNuevaRepetida)) {
+                    // Cifrar la nueva clave y aplicarle un hash, y luego actualizarla en la base de datos
+                    String nuevaClaveCifrada = Seguridad.cifrar(passNueva);
+                    String nuevaClaveHash = Seguridad.hash(nuevaClaveCifrada);
+                    result = daoMedico.actualizarClave(idMedico, nuevaClaveHash);
+                } else {
+                    result = "Las contraseñas nuevas no coinciden";
+                }
+            } else {
+                result = "La contraseña actual no es correcta";
+            }
+        } catch (Exception e) {
+            result = "Ocurrió un error al procesar la contraseña: " + e.getMessage();
+        }
+
+        return result;
     }
 }
