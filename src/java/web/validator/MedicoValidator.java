@@ -7,16 +7,9 @@ import entity.Medico;
 import entity.Usuario;
 import java.time.LocalTime;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
 import util.Seguridad;
 
-/*
-Y para descifrarla cuando sea necesario:
-String claveHash = usuario.getClave();
-String claveCifrada = UtilidadSeguridad.descifrar(claveHash);
- */
 public class MedicoValidator {
 
     private final HttpServletRequest request;
@@ -185,5 +178,17 @@ public class MedicoValidator {
         }
 
         return result;
+    }
+
+    public String medicoDel() {
+        String idParam = request.getParameter("id");
+        String resultado = null;
+        if (idParam != null && !idParam.isEmpty()) {
+            Integer id = Integer.parseInt(idParam);
+            resultado = daoMedico.eliminarMedico(id);
+        } else {
+            resultado = "ID incorrecto";
+        }
+        return resultado;
     }
 }

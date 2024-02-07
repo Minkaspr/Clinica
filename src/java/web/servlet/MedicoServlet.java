@@ -43,6 +43,10 @@ public class MedicoServlet extends HttpServlet {
                 result = validator.actualizarClave();
                 target = result == null ? "medico.jsp" : "medicoUpdPass.jsp";
                 break;
+            case "DEL":
+                result = validator.medicoDel();
+                target = "Medico?op=SEL";
+                break;
             case "":
                 result = "Solicitud requerida";
                 break;
