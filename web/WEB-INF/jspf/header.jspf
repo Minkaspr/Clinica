@@ -1,0 +1,47 @@
+<%@page import="dto.UsuarioDTO"%>
+<%@ page pageEncoding="UTF-8" %>
+<%
+    UsuarioDTO usuario = (UsuarioDTO) request.getSession().getAttribute("usuario");
+    if (usuario == null) {
+        response.sendRedirect("login.jsp");
+        return;
+    }
+
+    String rol = usuario.getRol();
+%>
+
+<header>
+    <h1>Bienvenido <%= usuario.getNombres()%> <%= usuario.getCorreo()%></h1>
+    <h3>Realiza estas Operaciones</h3>
+    <h5>Rol: <%= rol%></h5>
+    <nav class="navbar">
+        <h4>Operaciones Disponibles</h4>
+        <ul>
+            <% if (rol.equalsIgnoreCase("administrador")) { %>
+            <li>Gestionar Usuarios</li>
+            <ol>
+                <li><a href="medicoIns.jsp">Crear Medico</a></li>
+                <li><a href="medico.jsp">Visualizar Medicos</a></li>
+                <li><a href="secretarioIns.jsp">Crear Secretario</a></li>
+                <li><a href="secretario.jsp">Visualizar Secretarios</a></li>
+            </ol>
+            <% } %>
+            <% if (rol.equalsIgnoreCase("medico")) { %>
+            <li>Gestionar Pacientes</li>
+            <ol>
+                <li><a href="Paciente?op=CP">Crear Paciente</a></li>
+                <li><a href="paciente.jsp">Visualizar Pacientes</a></li>
+            </ol>
+            <% } %>
+            <% if (rol.equalsIgnoreCase("secretario")) { %>
+            <li>Gestionar Citas</li>
+            <ol>
+                <li><a href="Cita?op=CC">Crear Cita</a></li>
+                <li><a href="cita.jsp">Visualizar Citas</a></li>
+            </ol>
+            <% } %>
+            <li><a href="Usuario?op=MH">Mi Historial</a></li>
+            <li><a href="Usuario?op=LO">Cerrar Sesion</a></li>
+        </ul>
+    </nav>
+</header>

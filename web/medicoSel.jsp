@@ -8,6 +8,7 @@
         <title>JSP Page</title>
     </head>
     <body>
+        <%@include file="WEB-INF/jspf/header.jspf" %>
         <a href="medicoIns.jsp">Agregar</a>
         <table>
             <thead>
