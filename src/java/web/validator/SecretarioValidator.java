@@ -1,13 +1,12 @@
 package web.validator;
 
 import dao.DaoHistorial;
-import dao.DaoMedico;
+import dao.DaoSecretario;
 import dao.impl.DaoHistorialImpl;
-import dao.impl.DaoMedicoImpl;
-import dto.MedicoDTO;
+import dao.impl.DaoSecretarioImpl;
 import dto.UsuarioDTO;
 import entity.Historial;
-import entity.Medico;
+import entity.Secretario;
 import entity.Usuario;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -15,39 +14,38 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import util.Seguridad;
 
-public class MedicoValidator {
+public class SecretarioValidator {
 
     private final HttpServletRequest request;
-    private final DaoMedico daoMedico;
+    private final DaoSecretario daoSecretario;
     private final DaoHistorial daoHistorial;
 
-    public MedicoValidator(HttpServletRequest request) {
+    public SecretarioValidator(HttpServletRequest request) {
         this.request = request;
-        this.daoMedico = new DaoMedicoImpl();
+        this.daoSecretario = new DaoSecretarioImpl();
         this.daoHistorial = new DaoHistorialImpl();
     }
 
-    public String medicoSel() {
+    public String secretarioSel() {
         String result = null;
-        List<MedicoDTO> lista = daoMedico.obtenerMedicos();
+        List<Secretario> lista = daoSecretario.obtenerSecretarios();
         if (lista != null) {
             request.setAttribute("lista", lista);
         } else {
-            result = daoMedico.getMensaje();
+            result = daoSecretario.getMensaje();
         }
         return result;
     }
 
-    public String medicoInsUpd(boolean agreActu) {
+    public String secretarioInsUpd(boolean agreActu) {
         StringBuilder result = new StringBuilder("<ul>");
 
-        String idMedicoParam = request.getParameter("idMedico");
-        Integer idMedico = (idMedicoParam != null && !idMedicoParam.isEmpty()) ? Integer.valueOf(idMedicoParam) : null;
+        String idSecretarioParam = request.getParameter("idSecretario");
+        Integer idSecretario = (idSecretarioParam != null && !idSecretarioParam.isEmpty()) ? Integer.valueOf(idSecretarioParam) : null;
 
         String nombres = request.getParameter("nombres");
         String apellidos = request.getParameter("apellidos");
-        String numeroColegiado = request.getParameter("numeroColegiado");
-        String especialidad = request.getParameter("especialidad");
+        String salario = request.getParameter("salario");
 
         String correo = request.getParameter("correo");
         String clave = request.getParameter("clave");
@@ -58,46 +56,13 @@ public class MedicoValidator {
         String horaEntrada = request.getParameter("horaEntrada");
         String horaSalida = request.getParameter("horaSalida");
 
-        if (agreActu && idMedico == null) {
-            result.append("<li>ID requerido</li>");
-        }
-
-        if (nombres == null || nombres.trim().length() == 0) {
-            result.append("<li>Nombres requeridos</li>");
-        } else if (nombres.trim().length() < 3 || nombres.trim().length() > 30) {
-            result.append("<li>La dimensión del nombre debe estar entre 3 a 30 caracteres</li>");
-        }
-
-        if (apellidos == null || apellidos.trim().length() == 0) {
-            result.append("<li>Apellidos requeridos</li>");
-        } else if (apellidos.trim().length() < 3 || apellidos.trim().length() > 50) {
-            result.append("<li>La dimensión de los apellidos debe estar entre 3 a 50 caracteres</li>");
-        }
-
-        if (numeroColegiado == null || numeroColegiado.trim().length() == 0) {
-            result.append("<li>Número Colegiado requerido</li>");
-        }
-
-        if (especialidad == null || especialidad.trim().length() == 0) {
-            result.append("<li>Especialidad requerida</li>");
-        }
-
-        if (horaEntrada == null || horaEntrada.trim().length() == 0) {
-            result.append("<li>Hora de Entrada requerida</li>");
-        }
-
-        if (horaSalida == null || horaSalida.trim().length() == 0) {
-            result.append("<li>Hora de Salida requerida</li>");
-        }
-
-        Medico medico = new Medico();
-        medico.setId(idMedico);
-        medico.setNombres(nombres);
-        medico.setApellidos(apellidos);
-        medico.setNumeroColegiado(numeroColegiado);
-        medico.setEspecialidad(especialidad);
-        medico.setHoraEntrada(LocalTime.parse(horaEntrada));
-        medico.setHoraSalida(LocalTime.parse(horaSalida));
+        Secretario secretario = new Secretario();
+        secretario.setId(idSecretario);
+        secretario.setNombres(nombres);
+        secretario.setApellidos(apellidos);
+        secretario.setSalario(Double.valueOf(salario));
+        secretario.setHoraEntrada(LocalTime.parse(horaEntrada));
+        secretario.setHoraSalida(LocalTime.parse(horaSalida));
 
         Usuario usuario = new Usuario();
         usuario.setCorreo(correo);
@@ -106,7 +71,7 @@ public class MedicoValidator {
             usuario.setRol(rol);
             usuario.setEstado(estado);
         } else {
-            usuario.setRol("Medico");
+            usuario.setRol("Secretario");
             usuario.setEstado(true);
 
             String claveCifrada;
@@ -120,12 +85,12 @@ public class MedicoValidator {
             }
         }
 
-        medico.setUsuario(usuario);
+        secretario.setUsuario(usuario);
 
         if (result.length() == 4) {
             String msg = agreActu
-                    ? daoMedico.actualizarMedico(medico)
-                    : daoMedico.agregarMedico(medico);
+                    ? daoSecretario.actualizarSecretario(secretario)
+                    : daoSecretario.agregarSecretario(secretario);
             if (msg != null) {
                 result.append("<li>").append(msg).append("<li>");
             } else {
@@ -135,10 +100,10 @@ public class MedicoValidator {
                 // Crea un nuevo objeto Historial
                 Historial historial = new Historial();
                 historial.setUsuario_id(usuarioId);
-                historial.setAccion(agreActu ? "Actualización de médico" : "Creación de médico");
+                historial.setAccion(agreActu ? "Actualización de secretario" : "Creación de secretario");
                 historial.setFecha_hora(LocalDateTime.now());
                 if (usuarioDTO.getRol().equalsIgnoreCase("administrador")) {
-                    Integer usuarioAfectadoId = agreActu ? daoMedico.obtenerUsuarioIdPorMedicoId(idMedico) : DaoMedicoImpl.ultimoIdUsuario;
+                    Integer usuarioAfectadoId = agreActu ? daoSecretario.obtenerUsuarioIdPorSecretarioId(idSecretario) : DaoSecretarioImpl.ultimoIdUsuario;
                     historial.setObservaciones("ID del usuario afectado: " + usuarioAfectadoId);
                 }
                 // Inserta el nuevo historial en la base de datos
@@ -147,34 +112,34 @@ public class MedicoValidator {
         }
 
         if (result.length() > 4) {
-            request.setAttribute("medico", medico);
+            request.setAttribute("secretario", secretario);
         }
 
         return result.length() == 4 ? null : result.append("</ul>").toString();
     }
 
-    public String medicoGet() {
+    public String secretarioGet() {
         String result = null;
-        String idMedicoAux = request.getParameter("id");
-        Integer idMedico = Integer.valueOf(idMedicoAux);
-        Medico medico = daoMedico.obtenerMedicoPorId(idMedico);
-        if (medico != null) {
-            request.setAttribute("medico", medico);
+        String idSecretarioAux = request.getParameter("id");
+        Integer idSecretario = Integer.valueOf(idSecretarioAux);
+        Secretario secretario = daoSecretario.obtenerSecretarioPorId(idSecretario);
+        if (secretario != null) {
+            request.setAttribute("secretario", secretario);
         } else {
-            result = daoMedico.getMensaje();
+            result = daoSecretario.getMensaje();
         }
         return result;
     }
 
     public String actualizarClave() {
         String result = null;
-        String idMedico = request.getParameter("idMedico");
+        String idSecretario = request.getParameter("idSecretario");
         String passActual = request.getParameter("passActual");
         String passNueva = request.getParameter("passNueva");
         String passNuevaRepetida = request.getParameter("passNuevaRepetida");
 
         // Obtener el hash de la clave almacenada en la base de datos
-        String claveHash = daoMedico.obtenerClave(idMedico);
+        String claveHash = daoSecretario.obtenerClave(idSecretario);
 
         try {
             // Cifrar y aplicar un hash a la clave actual ingresada por el usuario
@@ -188,7 +153,7 @@ public class MedicoValidator {
                     // Cifrar la nueva clave y aplicarle un hash, y luego actualizarla en la base de datos
                     String nuevaClaveCifrada = Seguridad.cifrar(passNueva);
                     String nuevaClaveHash = Seguridad.hash(nuevaClaveCifrada);
-                    result = daoMedico.actualizarClave(idMedico, nuevaClaveHash);
+                    result = daoSecretario.actualizarClave(idSecretario, nuevaClaveHash);
                 } else {
                     result = "Las contraseñas nuevas no coinciden";
                 }
@@ -202,12 +167,25 @@ public class MedicoValidator {
         return result;
     }
 
-    public String medicoDel() {
+    public String secretarioDel() {
         String idParam = request.getParameter("id");
         String resultado = null;
         if (idParam != null && !idParam.isEmpty()) {
             Integer id = Integer.parseInt(idParam);
-            resultado = daoMedico.eliminarMedico(id);
+            int secretarioId =  daoSecretario.obtenerUsuarioIdPorSecretarioId(id);
+            resultado = daoSecretario.eliminarSecretario(id);
+
+            // Obtén el ID del usuario logueado
+            UsuarioDTO usuarioDTO = (UsuarioDTO) request.getSession().getAttribute("usuario");
+            Integer usuarioId = usuarioDTO.getUsuarioId();
+            // Crea un nuevo objeto Historial
+            Historial historial = new Historial();
+            historial.setUsuario_id(usuarioId);
+            historial.setAccion("Eliminación de secretario");
+            historial.setFecha_hora(LocalDateTime.now());
+            historial.setObservaciones("ID del usuario eliminado: " +secretarioId);
+            // Inserta el nuevo historial en la base de datos
+            daoHistorial.insertar(historial);
         } else {
             resultado = "ID incorrecto";
         }

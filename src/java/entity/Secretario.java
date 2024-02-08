@@ -7,9 +7,17 @@ public class Secretario extends Persona{
     private Double salario;
     private LocalTime horaEntrada;
     private LocalTime horaSalida;
-    private Integer usuario_id;
+    private Usuario usuario;
 
     public Secretario() {
+    }
+
+    public Secretario(Double salario, LocalTime horaEntrada, LocalTime horaSalida, Usuario usuario, Integer id, String nombres, String apellidos) {
+        super(id, nombres, apellidos);
+        this.salario = salario;
+        this.horaEntrada = horaEntrada;
+        this.horaSalida = horaSalida;
+        this.usuario = usuario;
     }
 
     public Double getSalario() {
@@ -36,13 +44,11 @@ public class Secretario extends Persona{
         this.horaSalida = horaSalida;
     }
 
-    public Integer getUsuario_id() {
-        return usuario_id;
+    public Usuario getUsuario() {
+        return usuario;
     }
 
-    public void setUsuario_id(Integer usuario_id) {
-        this.usuario_id = usuario_id;
+    public void setUsuario(Usuario usuario) {
+        this.usuario = usuario;
     }
-
-    
 }

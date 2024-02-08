@@ -8,5 +8,8 @@
     </head>
     <body>
         <%@include file="WEB-INF/jspf/header.jspf" %>
+        <% if (request.getAttribute("message") != null) {%>
+        <div><%= request.getAttribute("message")%></div>
+        <% }%>
     </body>
 </html>

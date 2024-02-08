@@ -40,6 +40,10 @@
                 <li><a href="cita.jsp">Visualizar Citas</a></li>
             </ol>
             <% } %>
+            <% if (rol.equalsIgnoreCase("medico") || rol.equalsIgnoreCase("secretario")) { %>
+            <li><a href="Usuario?op=LPD">Actualizar Perfil</a></li>
+            <% }%>
+            <li><a href="usuarioUpdPass.jsp">Actualizar Contraseña</a></li>
             <li><a href="Usuario?op=MH">Mi Historial</a></li>
             <li><a href="Usuario?op=LO">Cerrar Sesion</a></li>
         </ul>

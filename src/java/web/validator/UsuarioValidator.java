@@ -96,4 +96,90 @@ public class UsuarioValidator {
         }
         return result;
     }
+
+    public String actualizarClave() {
+        String result = null;
+        // Obtén el correo del usuario de la sesión
+        UsuarioDTO usuarioDTO = (UsuarioDTO) request.getSession().getAttribute("usuario");
+        String correoUsuario = usuarioDTO.getCorreo();
+        String passActual = request.getParameter("passActual");
+        String passNueva = request.getParameter("passNueva");
+        String passNuevaRepetida = request.getParameter("passNuevaRepetida");
+
+        // Obtener el hash de la clave almacenada en la base de datos
+        String claveHash = daoUsuario.obtenerClave(correoUsuario);
+
+        try {
+            // Cifrar y aplicar un hash a la clave actual ingresada por el usuario
+            String claveCifradaActual = Seguridad.cifrar(passActual);
+            String claveHashActual = Seguridad.hash(claveCifradaActual);
+
+            // Verificar si el hash de la clave actual ingresada por el usuario coincide con el hash almacenado en la base de datos
+            if (claveHashActual.equals(claveHash)) {
+                // Verificar si la nueva clave ingresada por el usuario coincide con la repetida
+                if (passNueva.equals(passNuevaRepetida)) {
+                    // Cifrar la nueva clave y aplicarle un hash, y luego actualizarla en la base de datos
+                    String nuevaClaveCifrada = Seguridad.cifrar(passNueva);
+                    String nuevaClaveHash = Seguridad.hash(nuevaClaveCifrada);
+                    result = daoUsuario.actualizarClave(correoUsuario, nuevaClaveHash);
+
+                    // Si la actualización de la clave fue exitosa, registra la acción en el historial
+                    if (result == null) {
+                        Historial historial = new Historial();
+                        historial.setUsuario_id(usuarioDTO.getUsuarioId());
+                        historial.setAccion("Actualización de contraseña");
+                        historial.setFecha_hora(LocalDateTime.now());
+                        daoHistorial.insertar(historial);
+                    }
+                } else {
+                    result = "Las contraseñas nuevas no coinciden";
+                }
+            } else {
+                result = "La contraseña actual no es correcta";
+            }
+        } catch (Exception e) {
+            result = "Ocurrió un error al procesar la contraseña: " + e.getMessage();
+        }
+
+        return result;
+    }
+
+    public String actualizarPerfil() {
+        // Obtén el objeto UsuarioDTO de la sesión
+        UsuarioDTO usuarioDTO = (UsuarioDTO) request.getSession().getAttribute("usuario");
+        // Obtén los nuevos nombres y apellidos del formulario
+        String nuevoNombres = request.getParameter("nuevoNombres");
+        String nuevoApellidos = request.getParameter("nuevoApellidos");
+        // Actualiza el perfil del usuario
+        String result = daoUsuario.actualizarPerfil(usuarioDTO, nuevoNombres, nuevoApellidos);
+
+        // Si la actualización del perfil fue exitosa, registra la acción en el historial
+        if (result == null) {
+            Historial historial = new Historial();
+            historial.setUsuario_id(usuarioDTO.getUsuarioId());
+            historial.setAccion("Datos personales actualizados");
+            historial.setFecha_hora(LocalDateTime.now());
+            daoHistorial.insertar(historial);
+
+            // Actualiza los nombres en el objeto UsuarioDTO de la sesión
+            usuarioDTO.setNombres(nuevoNombres);
+            request.getSession().setAttribute("usuario", usuarioDTO);
+        }
+
+        return result;
+    }
+
+    public String cargarDatos() {
+        String result = null;
+        // Obtén el objeto UsuarioDTO de la sesión
+        UsuarioDTO usuarioDTO = (UsuarioDTO) request.getSession().getAttribute("usuario");
+        // Obtén los datos del perfil del usuario
+        UsuarioDTO usuarioConDatosPerfil = daoUsuario.obtenerDatosPerfil(usuarioDTO);
+        if (usuarioConDatosPerfil != null) {
+            request.setAttribute("usuario", usuarioConDatosPerfil);
+        } else {
+            result = daoUsuario.getMensaje();
+        }
+        return result;
+    }
 }

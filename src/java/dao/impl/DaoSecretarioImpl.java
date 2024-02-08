@@ -1,8 +1,7 @@
 package dao.impl;
 
-import dao.DaoMedico;
-import dto.MedicoDTO;
-import entity.Medico;
+import dao.DaoSecretario;
+import entity.Secretario;
 import entity.Usuario;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -14,65 +13,78 @@ import java.util.ArrayList;
 import java.util.List;
 import util.ConexionBD;
 
-public class DaoMedicoImpl implements DaoMedico {
+public class DaoSecretarioImpl implements DaoSecretario {
 
     public static Integer ultimoIdUsuario = null;
 
     private final ConexionBD conexion;
     private String mensaje;
 
-    public DaoMedicoImpl() {
+    public DaoSecretarioImpl() {
         this.conexion = new ConexionBD();
     }
 
     @Override
-    public List<MedicoDTO> obtenerMedicos() {
-        List<MedicoDTO> lista = null;
+    public List<Secretario> obtenerSecretarios() {
+        List<Secretario> lista = null;
         StringBuilder query = new StringBuilder();
         query.append("SELECT ")
-                .append("id, ")
-                .append("nombres, ")
-                .append("apellidos, ")
-                .append("numero_colegiado, ")
-                .append("especialidad ")
-                .append("FROM medico");
+                .append("s.id, ")
+                .append("u.correo, ")
+                .append("u.rol, ")
+                .append("u.estado, ")
+                .append("s.nombres, ")
+                .append("s.apellidos, ")
+                .append("s.salario, ")
+                .append("s.hora_entrada, ")
+                .append("s.hora_salida ")
+                .append("FROM secretario s ")
+                .append("INNER JOIN usuario u ON s.usuario_id = u.id");
         try (Connection cn = conexion.conexionBD()) {
             PreparedStatement ps = cn.prepareStatement(query.toString());
             ResultSet rs = ps.executeQuery();
             lista = new ArrayList<>();
             while (rs.next()) {
-                MedicoDTO medicoDTO = new MedicoDTO();
-                medicoDTO.setId(rs.getInt(1));
-                medicoDTO.setNombres(rs.getString(2));
-                medicoDTO.setApellidos(rs.getString(3));
-                medicoDTO.setNumeroColegiado(rs.getString(4));
-                medicoDTO.setEspecialidad(rs.getString(5));
-                lista.add(medicoDTO);
+                Usuario usuario = new Usuario();
+                usuario.setId(rs.getInt(1));
+                usuario.setCorreo(rs.getString(2));
+                usuario.setRol(rs.getString(3));
+                usuario.setEstado(rs.getBoolean(4));
+
+                Secretario secretario = new Secretario();
+                secretario.setId(rs.getInt(1));
+                secretario.setUsuario(usuario);
+                secretario.setNombres(rs.getString(5));
+                secretario.setApellidos(rs.getString(6));
+                secretario.setSalario(rs.getDouble(7));
+                secretario.setHoraEntrada(rs.getTime(8).toLocalTime());
+                secretario.setHoraSalida(rs.getTime(9).toLocalTime());
+                lista.add(secretario);
             }
         } catch (SQLException e) {
             mensaje = e.getMessage();
         }
+
         return lista;
     }
 
     @Override
-    public Medico obtenerMedicoPorId(Integer id) {
-        Medico medico = null;
+    public Secretario obtenerSecretarioPorId(Integer id) {
+        Secretario secretario = null;
         StringBuilder query = new StringBuilder();
         query.append("SELECT ")
-                .append("m.id, ")
+                .append("s.id, ")
                 .append("u.correo, ")
                 .append("u.rol, ")
                 .append("u.estado, ")
-                .append("m.nombres, ")
-                .append("m.apellidos, ")
-                .append("m.numero_colegiado, ")
-                .append("m.especialidad, ")
-                .append("m.hora_entrada, ")
-                .append("m.hora_salida ")
-                .append("FROM medico m ")
-                .append("INNER JOIN usuario u ON m.usuario_id = u.id ")
-                .append("WHERE m.id = ?");
+                .append("s.nombres, ")
+                .append("s.apellidos, ")
+                .append("s.salario, ")
+                .append("s.hora_entrada, ")
+                .append("s.hora_salida ")
+                .append("FROM secretario s ")
+                .append("INNER JOIN usuario u ON s.usuario_id = u.id ")
+                .append("WHERE s.id = ?");
         try (Connection cn = conexion.conexionBD()) {
             PreparedStatement ps = cn.prepareStatement(query.toString());
             ps.setInt(1, id);
@@ -84,24 +96,23 @@ public class DaoMedicoImpl implements DaoMedico {
                 usuario.setRol(rs.getString(3));
                 usuario.setEstado(rs.getBoolean(4));
 
-                medico = new Medico();
-                medico.setId(rs.getInt(1));
-                medico.setUsuario(usuario);
-                medico.setNombres(rs.getString(5));
-                medico.setApellidos(rs.getString(6));
-                medico.setNumeroColegiado(rs.getString(7));
-                medico.setEspecialidad(rs.getString(8));
-                medico.setHoraEntrada(rs.getTime(9).toLocalTime());
-                medico.setHoraSalida(rs.getTime(10).toLocalTime());
+                secretario = new Secretario();
+                secretario.setId(rs.getInt(1));
+                secretario.setUsuario(usuario);
+                secretario.setNombres(rs.getString(5));
+                secretario.setApellidos(rs.getString(6));
+                secretario.setSalario(rs.getDouble(7));
+                secretario.setHoraEntrada(rs.getTime(8).toLocalTime());
+                secretario.setHoraSalida(rs.getTime(9).toLocalTime());
             }
         } catch (SQLException e) {
             mensaje = e.getMessage();
         }
-        return medico;
+        return secretario;
     }
 
     @Override
-    public String agregarMedico(Medico medico) {
+    public String agregarSecretario(Secretario secretario) {
         StringBuilder query = new StringBuilder();
         query.append("INSERT INTO usuario (")
                 .append("correo, clave, rol, estado")
@@ -110,10 +121,10 @@ public class DaoMedicoImpl implements DaoMedico {
             // Iniciar transacción
             cn.setAutoCommit(false);
             PreparedStatement ps = cn.prepareStatement(query.toString(), Statement.RETURN_GENERATED_KEYS);
-            ps.setString(1, medico.getUsuario().getCorreo());
-            ps.setString(2, medico.getUsuario().getClave());
-            ps.setString(3, medico.getUsuario().getRol());
-            ps.setBoolean(4, medico.getUsuario().getEstado());
+            ps.setString(1, secretario.getUsuario().getCorreo());
+            ps.setString(2, secretario.getUsuario().getClave());
+            ps.setString(3, secretario.getUsuario().getRol());
+            ps.setBoolean(4, secretario.getUsuario().getEstado());
 
             int ctos = ps.executeUpdate();
             boolean transaccionExitosa = true;
@@ -128,22 +139,21 @@ public class DaoMedicoImpl implements DaoMedico {
                     ultimoIdUsuario = usuarioId; // Almacena el ID del último usuario creado para MH
                     // Nueva consulta
                     query = new StringBuilder();
-                    query.append("INSERT INTO medico (")
-                            .append("usuario_id, nombres, apellidos, numero_colegiado, ")
-                            .append("especialidad, hora_entrada, hora_salida")
-                            .append(") VALUES (?, ?, ?, ?, ?, ?, ?)");
-                    // Insertar en la tabla medico
+                    query.append("INSERT INTO secretario (")
+                            .append("usuario_id, nombres, apellidos, salario, ")
+                            .append("hora_entrada, hora_salida")
+                            .append(") VALUES (?, ?, ?, ?, ?, ?)");
+                    // Insertar en la tabla secretario
                     ps = cn.prepareStatement(query.toString());
                     ps.setInt(1, usuarioId);
-                    ps.setString(2, medico.getNombres());
-                    ps.setString(3, medico.getApellidos());
-                    ps.setString(4, medico.getNumeroColegiado());
-                    ps.setString(5, medico.getEspecialidad());
-                    ps.setTime(6, Time.valueOf(medico.getHoraEntrada()));
-                    ps.setTime(7, Time.valueOf(medico.getHoraSalida()));
+                    ps.setString(2, secretario.getNombres());
+                    ps.setString(3, secretario.getApellidos());
+                    ps.setDouble(4, secretario.getSalario());
+                    ps.setTime(5, Time.valueOf(secretario.getHoraEntrada()));
+                    ps.setTime(6, Time.valueOf(secretario.getHoraSalida()));
                     ctos = ps.executeUpdate();
                     if (ctos == 0) {
-                        mensaje = "Error al insertar el médico";
+                        mensaje = "Error al insertar el secretario";
                         transaccionExitosa = false;
                     }
                 }
@@ -164,42 +174,41 @@ public class DaoMedicoImpl implements DaoMedico {
     }
 
     @Override
-    public String actualizarMedico(Medico medico) {
+    public String actualizarSecretario(Secretario secretario) {
         StringBuilder query = new StringBuilder();
         query.append("UPDATE usuario u ")
-                .append("JOIN medico m ON u.id = m.usuario_id ")
+                .append("JOIN secretario s ON u.id = s.usuario_id ")
                 .append("SET u.correo = ?, u.rol = ?, u.estado = ? ")
-                .append("WHERE m.id = ?");
+                .append("WHERE s.id = ?");
         try (Connection cn = conexion.conexionBD()) {
             // Iniciar transacción
             cn.setAutoCommit(false);
             boolean transaccionExitosa = true;
             PreparedStatement ps = cn.prepareStatement(query.toString());
-            ps.setString(1, medico.getUsuario().getCorreo());
-            ps.setString(2, medico.getUsuario().getRol());
-            ps.setBoolean(3, medico.getUsuario().getEstado());
-            ps.setInt(4, medico.getId());
+            ps.setString(1, secretario.getUsuario().getCorreo());
+            ps.setString(2, secretario.getUsuario().getRol());
+            ps.setBoolean(3, secretario.getUsuario().getEstado());
+            ps.setInt(4, secretario.getId());
             int ctos = ps.executeUpdate();
             if (ctos == 0) {
                 mensaje = "No se pudo actualizar el usuario";
                 transaccionExitosa = false;
             } else {
                 query = new StringBuilder();
-                query.append("UPDATE medico SET ")
-                        .append("nombres = ?, apellidos = ?, numero_colegiado = ?, ")
-                        .append("especialidad = ?, hora_entrada = ?, hora_salida = ? ")
+                query.append("UPDATE secretario SET ")
+                        .append("nombres = ?, apellidos = ?, salario = ?, ")
+                        .append("hora_entrada = ?, hora_salida = ? ")
                         .append("WHERE id = ?");
                 ps = cn.prepareStatement(query.toString());
-                ps.setString(1, medico.getNombres());
-                ps.setString(2, medico.getApellidos());
-                ps.setString(3, medico.getNumeroColegiado());
-                ps.setString(4, medico.getEspecialidad());
-                ps.setTime(5, Time.valueOf(medico.getHoraEntrada()));
-                ps.setTime(6, Time.valueOf(medico.getHoraSalida()));
-                ps.setInt(7, medico.getId());
+                ps.setString(1, secretario.getNombres());
+                ps.setString(2, secretario.getApellidos());
+                ps.setDouble(3, secretario.getSalario());
+                ps.setTime(4, Time.valueOf(secretario.getHoraEntrada()));
+                ps.setTime(5, Time.valueOf(secretario.getHoraSalida()));
+                ps.setInt(6, secretario.getId());
                 ctos = ps.executeUpdate();
                 if (ctos == 0) {
-                    mensaje = "No se pudo actualizar el médico";
+                    mensaje = "No se pudo actualizar el secretario";
                     transaccionExitosa = false;
                 }
             }
@@ -219,10 +228,10 @@ public class DaoMedicoImpl implements DaoMedico {
     }
 
     @Override
-    public String eliminarMedico(Integer id) {
+    public String eliminarSecretario(Integer id) {
         StringBuilder query = new StringBuilder();
         query.append("DELETE FROM usuario ")
-                .append("WHERE id = (SELECT usuario_id FROM medico WHERE id = ?)");
+                .append("WHERE id = (SELECT usuario_id FROM secretario WHERE id = ?)");
         try (Connection cn = conexion.conexionBD()) {
             PreparedStatement ps = cn.prepareStatement(query.toString());
             ps.setInt(1, id);
@@ -237,12 +246,12 @@ public class DaoMedicoImpl implements DaoMedico {
     }
 
     @Override
-    public String obtenerClave(String idMedico) {
+    public String obtenerClave(String idSecretario) {
         String clave = null;
-        String query = "SELECT u.clave FROM usuario u JOIN medico m ON u.id = m.usuario_id WHERE m.id = ?";
+        String query = "SELECT u.clave FROM usuario u JOIN secretario s ON u.id = s.usuario_id WHERE s.id = ?";
         try (Connection cn = conexion.conexionBD()) {
             PreparedStatement ps = cn.prepareStatement(query);
-            ps.setString(1, idMedico);
+            ps.setString(1, idSecretario);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 clave = rs.getString(1);
@@ -254,13 +263,13 @@ public class DaoMedicoImpl implements DaoMedico {
     }
 
     @Override
-    public String actualizarClave(String idMedico, String nuevaClave) {
+    public String actualizarClave(String idSecretario, String nuevaClave) {
         String result = null;
-        String query = "UPDATE usuario u JOIN medico m ON u.id = m.usuario_id SET u.clave = ? WHERE m.id = ?";
+        String query = "UPDATE usuario u JOIN secretario s ON u.id = s.usuario_id SET u.clave = ? WHERE s.id = ?";
         try (Connection cn = conexion.conexionBD()) {
             PreparedStatement ps = cn.prepareStatement(query);
             ps.setString(1, nuevaClave);
-            ps.setString(2, idMedico);
+            ps.setString(2, idSecretario);
             int rowsUpdated = ps.executeUpdate();
             if (rowsUpdated == 0) {
                 result = "No se pudo actualizar la contraseña";
@@ -272,12 +281,12 @@ public class DaoMedicoImpl implements DaoMedico {
     }
 
     @Override
-    public Integer obtenerUsuarioIdPorMedicoId(Integer medicoId) {
+    public Integer obtenerUsuarioIdPorSecretarioId(Integer secretarioId) {
         Integer usuarioId = null;
-        String query = "SELECT usuario_id FROM medico WHERE id = ?";
+        String query = "SELECT usuario_id FROM secretario WHERE id = ?";
         try (Connection cn = conexion.conexionBD()) {
             PreparedStatement ps = cn.prepareStatement(query);
-            ps.setInt(1, medicoId);
+            ps.setInt(1, secretarioId);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 usuarioId = rs.getInt("usuario_id");

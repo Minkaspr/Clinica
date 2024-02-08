@@ -8,9 +8,6 @@
         <title>JSP Page</title>
     </head>
     <body>
-
-
-
         <%
             Medico medico = (Medico) request.getAttribute("medico");
             String nombres = (medico != null) ? medico.getNombres() : "";

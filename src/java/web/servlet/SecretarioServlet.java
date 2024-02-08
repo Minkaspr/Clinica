@@ -7,10 +7,10 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import web.validator.UsuarioValidator;
+import web.validator.SecretarioValidator;
 
-@WebServlet(name = "UsuarioServlet", urlPatterns = {"/Usuario"})
-public class UsuarioServlet extends HttpServlet {
+@WebServlet(name = "SecretarioServlet", urlPatterns = {"/Secretario"})
+public class SecretarioServlet extends HttpServlet {
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -19,33 +19,33 @@ public class UsuarioServlet extends HttpServlet {
         opcion = (opcion == null) ? "" : opcion;
 
         String result = null;
-        String target = "index.html";
+        String target = "secretario.jsp";
 
-        UsuarioValidator validator = new UsuarioValidator(request);
+        SecretarioValidator validator = new SecretarioValidator(request);
         switch (opcion) {
-            case "LI": // LogIn
-                result = validator.usuarioLi();
-                target = result == null ? "dashboard.jsp" : "login.jsp";
+            case "SEL":
+                result = validator.secretarioSel();
+                target = "secretarioSel.jsp";
                 break;
-            case "LO": //LogOut
-                result = validator.usuarioLo();
-                target = result == null ? "index.html" : "dashboard.jsp";
+            case "INS":
+                result = validator.secretarioInsUpd(false);
+                target = result == null ? "secretario.jsp" : "secretarioIns.jsp";
                 break;
-            case "MH": // My History
-                result = validator.historialPorUsuarioId();
-                target = result == null ? "historial.jsp" : "dashboard.jsp";
+            case "GET":
+                result = validator.secretarioGet();
+                target = "secretarioUpd.jsp";
                 break;
-            case "UP": // Update Password
+            case "UPD":
+                result = validator.secretarioInsUpd(true);
+                target = result == null ? "secretario.jsp" : "secretarioUpd.jsp";
+                break;
+            case "UPD_PASS":
                 result = validator.actualizarClave();
-                target = result == null ? "dashboard.jsp" : "usuarioUpdPass.jsp";
+                target = result == null ? "secretario.jsp" : "secretarioUpdPass.jsp";
                 break;
-            case "LPD": // Load Personal Data
-                result = validator.cargarDatos();
-                target = "usuarioUpdPf.jsp";
-                break;
-            case "UPD": // Update Personal Data
-                result = validator.actualizarPerfil();
-                target = result == null ? "dashboard.jsp" : "usuarioUpdPf.jsp";
+            case "DEL":
+                result = validator.secretarioDel();
+                target = "Secretario?op=SEL";
                 break;
             case "":
                 result = "Solicitud requerida";

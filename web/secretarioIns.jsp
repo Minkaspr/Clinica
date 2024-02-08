@@ -1,5 +1,5 @@
 
-<%@page import="entity.Medico"%>
+<%@page import="entity.Secretario"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
@@ -8,19 +8,18 @@
         <title>JSP Page</title>
     </head>
     <body>
-        <h1>Nuevo Medico</h1>
+        <h1>Nuevo Secretario</h1>
         <%
-            Medico medico = (Medico) request.getAttribute("medico");
-            String nombres = (medico != null) ? medico.getNombres() : "";
-            String apellidos = (medico != null) ? medico.getApellidos() : "";
-            String numeroColegiado = (medico != null) ? medico.getNumeroColegiado() : "";
-            String especialidad = (medico != null) ? medico.getEspecialidad() : "";
-            String correo = (medico != null) ? medico.getUsuario().getCorreo() : "";
-            String clave = (medico != null) ? medico.getUsuario().getClave() : "";
-            String horaEntrada = (medico != null) ? medico.getHoraEntrada().toString() : "";
-            String horaSalida = (medico != null) ? medico.getHoraSalida().toString() : "";
+            Secretario secretario = (Secretario) request.getAttribute("secretario");
+            String nombres = (secretario != null) ? secretario.getNombres() : "";
+            String apellidos = (secretario != null) ? secretario.getApellidos() : "";
+            String salario = (secretario != null) ? String.valueOf(secretario.getSalario()) : "";
+            String correo = (secretario != null) ? secretario.getUsuario().getCorreo() : "";
+            String clave = (secretario != null) ? secretario.getUsuario().getClave() : "";
+            String horaEntrada = (secretario != null) ? secretario.getHoraEntrada().toString() : "";
+            String horaSalida = (secretario != null) ? secretario.getHoraSalida().toString() : "";
         %>
-        <form action="Medico" method="POST" class="form">
+        <form action="Secretario" method="POST" class="form">
             <input type="hidden" name="op" value="INS"/>
             <div class="form__group">
                 <div class="form__item">
@@ -40,8 +39,8 @@
                     <input type="password" id="clave" class="form__input" name="clave" value="<%= clave%>">
                 </div>
                 <div class="form__item">
-                    <label for="numeroColegiado" class="form__label">Numero Colegiado</label>
-                    <input type="number" id="numeroColegiado" class="form__input" name="numeroColegiado" value="<%= numeroColegiado%>">
+                    <label for="salario" class="form__label">Salario</label>
+                    <input type="number" id="salario" class="form__input" name="salario" value="<%= salario%>">
                 </div>
                 <div class="form__item">
                     <label for="horaEntrada" class="form__label">Hora de Entrada</label>
@@ -50,15 +49,6 @@
                 <div class="form__item">
                     <label for="horaSalida" class="form__label">Hora de Salida</label>
                     <input type="time" id="horaSalida" class="form__input" name="horaSalida" value="<%= horaSalida%>">
-                </div>
-                <div class="form__item">
-                    <label for="especialidad" class="form__label">Especialidad</label>
-                    <select id="especialidad" class="form__input" name="especialidad">
-                        <option value="Cardiologia" <%= "Cardiologia".equals(especialidad) ? "selected" : ""%>>Cardiología</option>
-                        <option value="Dermatologia" <%= "Dermatologia".equals(especialidad) ? "selected" : ""%>>Dermatología</option>
-                        <option value="Neurologia" <%= "Neurologia".equals(especialidad) ? "selected" : ""%>>Neurología</option>
-                        <option value="Pediatria" <%= "Pediatria".equals(especialidad) ? "selected" : ""%>>Pediatría</option>
-                    </select>
                 </div>
                 <div class="btn__group">
                     <button class="btn__item btn__item--cancel" onclick="location.href = 'medico.jsp'">
@@ -70,6 +60,7 @@
                         <span class="btnText">Agregar</span>
                     </button>
                 </div>
+            </div>
         </form>
         <% if (request.getAttribute("message") != null) {%>
         <div><%= request.getAttribute("message")%></div>

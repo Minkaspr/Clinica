@@ -4,6 +4,7 @@ package dto;
 public class UsuarioDTO {
     private Integer usuarioId;
     private String nombres;
+    private String apellidos;
     private String correo;
     private String rol;
 
@@ -24,6 +25,14 @@ public class UsuarioDTO {
 
     public void setNombres(String nombres) {
         this.nombres = nombres;
+    }
+
+    public String getApellidos() {
+        return apellidos;
+    }
+
+    public void setApellidos(String apellidos) {
+        this.apellidos = apellidos;
     }
 
     public String getCorreo() {

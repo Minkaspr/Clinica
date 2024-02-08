@@ -13,5 +13,6 @@ public interface DaoMedico {
     String eliminarMedico(Integer id);
     String obtenerClave(String idUsuario);
     String actualizarClave(String idMedico, String nuevaClave);
+    Integer obtenerUsuarioIdPorMedicoId(Integer medicoId);
     String getMensaje();
 }
