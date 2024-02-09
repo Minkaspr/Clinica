@@ -31,28 +31,28 @@ El objetivo de este proyecto es permitir la gestión de una clínica. Los usuari
 > git clone https://github.com/Minkaspr/Clinica.git
 > ```
 
-##Estructura del Proyecto 🏗️
+## Estructura del Proyecto 🏗️
 El proyecto está organizado en los siguientes paquetes y clases:
 
-clinica: Paquete principal del proyecto.
-dao: Contiene las interfaces y clases para el acceso a la base de datos.
-dto: Contiene clases para el transporte de datos específicos de las entidades como MedicoDTO y UsuarioDTO. 
-entity: Contiene las clases que representan las entidades de la base de datos.
-util: Contiene las clases de utilidad, como la conexión a la base de datos y seguridad.
-web: Contiene el servlet y el validador.
+- clinica: Paquete principal del proyecto.
+- dao: Contiene las interfaces y clases para el acceso a la base de datos.
+- dto: Contiene clases para el transporte de datos específicos de las entidades como MedicoDTO y UsuarioDTO. 
+- entity: Contiene las clases que representan las entidades de la base de datos.
+- util: Contiene las clases de utilidad, como la conexión a la base de datos y seguridad.
+- web: Contiene el servlet y el validador.
 
-##Base de Datos 🗄️
+## Base de Datos 🗄️
 La base de datos consta de las siguientes tablas:
 
-Usuario: Tabla principal con campos como id_usuario, correo, clave, rol, estado.
-Medico: Tabla con campos id_medico, nombres, apellidos, numero_colegiado, especialidad, hora_entrada, hora_salida, usuario_id.
-Secretario: Tabla con campos id_secretario, nombres, apellidos, salario, hora_entrada, hora_salida, usuario_id.
-Historial: Tabla con campos id_historial, usuario_id, accion, fecha_hora, observaciones.
+- Usuario: Tabla principal con campos como id_usuario, correo, clave, rol, estado.
+- Medico: Tabla con campos id_medico, nombres, apellidos, numero_colegiado, especialidad, hora_entrada, hora_salida, usuario_id.
+- Secretario: Tabla con campos id_secretario, nombres, apellidos, salario, hora_entrada, hora_salida, usuario_id.
+- Historial: Tabla con campos id_historial, usuario_id, accion, fecha_hora, observaciones.
 
-##Tecnologías Utilizadas 🚀
-Java
-NetBeans IDE
-MySQL
-Apache Tomcat
-Servlets
-HTML
+## Tecnologías Utilizadas 🚀
+- Java
+- NetBeans IDE
+- MySQL
+- Apache Tomcat
+- Servlets
+- HTML
